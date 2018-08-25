@@ -1,6 +1,10 @@
 package java_bootcamp;
 
 import co.paralleluniverse.fibers.Suspendable;
+import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.Command;
+import net.corda.core.contracts.CommandData;
+import net.corda.core.contracts.StateAndContract;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
@@ -13,11 +17,11 @@ import net.corda.core.utilities.ProgressTracker;
 @StartableByRPC
 public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
     private final ProgressTracker progressTracker = new ProgressTracker();
-    private final Party owner;
+    private final Party recipient;
     private final int amount;
 
-    public TokenIssueFlow(Party owner, int amount) {
-        this.owner = owner;
+    public TokenIssueFlow(Party recipient, int amount) {
+        this.recipient = recipient;
         this.amount = amount;
     }
 
@@ -34,21 +38,15 @@ public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
         // We get a reference to our own identity.
         Party issuer = getOurIdentity();
 
-        /* ============================================================================
-         *         TODO 1 - Create our TokenState to represent on-ledger tokens!
-         * ===========================================================================*/
         // We create our new TokenState.
-        TokenState tokenState = null;
+        TokenState tokenState = new TokenState(issuer, recipient, amount);
 
-        /* ============================================================================
-         *      TODO 3 - Build our token issuance transaction to update the ledger!
-         * ===========================================================================*/
         // We build our transaction.
-        TransactionBuilder transactionBuilder = null;
+        TransactionBuilder transactionBuilder = new TransactionBuilder(notary).withItems(
+                new StateAndContract(tokenState, TokenContract.class.getName()),
+                new Command<CommandData>(new TokenContract.Issue(), ImmutableList.of(issuer.getOwningKey()))
+        );
 
-        /* ============================================================================
-         *          TODO 2 - Write our TokenContract to control token issuance!
-         * ===========================================================================*/
         // We check our transaction is valid based on its contracts.
         transactionBuilder.verify(getServiceHub());
 
