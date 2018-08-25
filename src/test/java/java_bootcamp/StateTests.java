@@ -20,7 +20,7 @@ public class StateTests {
     public void tokenStateHasGettersForIssuerOwnerAndAmount() {
         TokenState tokenState = new TokenState(alice, bob, 1);
         assertEquals(alice, tokenState.getIssuer());
-        assertEquals(bob, tokenState.getOwner());
+        assertEquals(bob, tokenState.getRecipient());
         assertEquals(1, tokenState.getAmount());
     }
 

@@ -27,10 +27,6 @@ public class TokenState implements ContractState {
         return ImmutableList.of(issuer, recipient);
     }
 
-    public AbstractParty getOwner() {
-        return getRecipient();
-    }
-
     public AbstractParty getIssuer() {
         return issuer;
     }
